@@ -1,7 +1,17 @@
+import numpy as np
+import math
 from collections import deque
 from source.referral import Referrals
 
 class Reach(Referrals):
+    
+    def k_percentile(self, percentile = 90):
+        if not self.graph:
+            return 0
+        reaches = [self.total_reach(user) for user in self.graph.keys()]
+        threshold = np.percentile(reaches, percentile)
+        return sum(1 for reach in reaches if reach >= threshold)
+    
     def total_reach(self, user):
         visited = set()
         queue = deque(self.graph.get(user, []))
@@ -14,7 +24,12 @@ class Reach(Referrals):
         
         return len(visited)
     
-    def top_k_referrers(self, k):
+    def top_k_referrers(self, k=None, percentile=None):
+            
+        if percentile is not None:
+            k = self.k_percentile(percentile)
+        
+        
         reach_count = []
         for user in self.graph.keys():
             count = self.total_reach(user)
@@ -24,13 +39,5 @@ class Reach(Referrals):
         
         return reach_count[:k]
     
-    
-if __name__ == "__main__":
-    ra = Reach()
-    ra.give_referral("Alice", "Bob")
-    ra.give_referral("Alice", "Charlie")
-    ra.give_referral("Bob", "David")
-    ra.give_referral("Charlie", "Eve")
 
-    print("Total reach of Alice:", ra.total_reach("Alice"))  # 4
-    print("Top 2 referrers:", ra.top_k_referrers(2))
+
