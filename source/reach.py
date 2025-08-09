@@ -25,7 +25,7 @@ class Reach(Referrals):
         return len(visited)
     
     def top_k_referrers(self, k=None, percentile=None):
-            
+        
         if percentile is not None:
             k = self.k_percentile(percentile)
         
